@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursive Tree</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-black text-white">
+    <div class="flex flex-col items-center justify-center h-screen">
+        <canvas id="fractalCanvas" width="800" height="500"></canvas>
+        
+        <div class="flex flex-col items-center justify-center mt-4">
+            <div>Angle: <span id="angleText"></span> <input type="range" id="angleSlider" min="0" max="60" value="30" class="slider mx-2" oninput="drawTree()"></div>
+            <div>Length Factor: <span id="lengthText"></span> <input type="range" id="lengthSlider" min="50" max="90" value="75" step="1" class="slider mx-2" oninput="drawTree()"></div>
+            <div>Depth: <span id="depthText"></span> <input type="range" id="depthSlider" min="1" max="15" value="10" class="slider mx-2" oninput="drawTree()"></div>
+        </div>
+        
+        <div class="flex gap-6 mt-6">
+            <a href="https://www.philiploebl.online/" class="hover:underline">Portfolio</a>
+            <div class="select-none text-neutral-700">|</div>
+            <a href="/" class="hover:underline">Home</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
