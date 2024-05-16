@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Pathfinder</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            color: white;
+            font-family: 'Noto Sans', sans-serif;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+            background: #000;
+        }
+        .radioBtns, .buttonContainer {
+            width: 50%;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #1a202c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="menu flex flex-col gap-2 select-none">
+        <div class="flex flex-col gap-2 p-2 border border-gray-600 rounded-2xl">
+            <p class="text-sm text-neutral-400">Objects</p>
+            <div class="relative flex w-full flex-col rounded-xl bg-white shadow-md">
+                <nav class="flex min-w-[240px] flex-row gap-1 p-2 text-base text-gray-700">
+                    <div class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200">
+                        <label for="t1" class="flex cursor-pointer items-center w-full">
+                            <input type="radio" name="type" id="t1" class="hidden peer" checked />
+                            <div class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700">
+                                <div class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"></div>
+                            </div>
+                            <span class="text-black">Start</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200">
+                        <label for="t2" class="flex cursor-pointer items-center w-full">
+                            <input type="radio" name="type" id="t2" class="hidden peer" />
+                            <div class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700">
+                                <div class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"></div>
+                            </div>
+                            <span class="text-black">End</span>
+                        </label>
+                    </div>
+                    <div class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200">
+                        <label for="t3" class="flex cursor-pointer items-center w-full">
+                            <input type="radio" name="type" id="t3" class="hidden peer" />
+                            <div class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700">
+                                <div class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"></div>
+                            </div>
+                            <span class="text-black">Wall</span>
+                        </label>
+                    </div>
+                </nav>
+            </div>
+        
+            <p class="text-sm text-neutral-400">Algorithm</p>
+            <div class="buttonContainer relativ flex w-full flex-row justify-between rounded-xl bg-white shadow-md p-2 gap-2">
+                <button id="bfsBtn" class="w-full px-4 py-2 text-black hover:bg-gray-200 ">BFS</button>
+                <button id="dfsBtn" class="w-full px-4 py-2 text-black hover:bg-gray-200">DFS</button>
+                <button id="astarBtn" class="w-full px-4 py-2 text-black hover:bg-gray-200">A*</button>
+            </div>
+            <p class="text-sm text-red-500">Danger Zone</p>
+            <div class="buttonContainer relativ flex w-full flex-row justify-between rounded-xl bg-white shadow-md p-2 gap-2">
+                <button id="resetAlgoBtn" class="w-full px-4 py-2 text-black hover:bg-yellow-300 ">Reset Algo</button>
+                <button id="resetBtn" class="w-full px-4 py-2 text-black hover:bg-red-500 ">Full Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
