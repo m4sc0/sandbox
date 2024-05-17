@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        color: white;
+        font-family: "Noto Sans", sans-serif;
+      }
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        background: #000;
+      }
+      .radioBtns,
+      .buttonContainer {
+        width: 50%;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #1a202c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #2d3748;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col-reverse">
+    <div class="info flex flex-col justify-items items-center">
+      <h1 class="text-xl text-zinc-500">
+        Use the mouse wheel to change the number of transforms
+      </h1>
+
+      <h2 class="text-lg text-zinc-500">
+        Current transforms:
+        <span id="nTransforms"></span>
+      </h2>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="./sketch.js"></script>
+  </body>
+</html>

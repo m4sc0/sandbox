@@ -14,6 +14,10 @@ app.get('/sorting-algo', (req, res) => {
 
 app.get('/recursive-tree', (req, res) => {
     res.sendFile('/recursive-tree');
+});
+
+app.get('/pathfinder', (req, res) => {
+    res.sendFile('/pathfinder');
 })
 
 app.listen(4001, () => {
