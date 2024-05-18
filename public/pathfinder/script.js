@@ -1,11 +1,43 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-ctx.canvas.width = window.innerWidth / 6 * 3;
+// Adjust canvas dimensions
 ctx.canvas.height = window.innerHeight / 6 * 3;
+ctx.canvas.width = ctx.canvas.height;
 
+let numRowsCols = 20;
 let delay = 20;
+let delayCounter = 0;
 let isSearching = false;
+let pixelSize;
 
+// Time tracking
+let time = { value: 0 };
+let timeProxy = new Proxy(time, {
+    set: function (target, key, value) {
+        document.getElementById('timeDisplay').innerText = Math.max(value - (delayCounter * delay), 0);
+        target[key] = value;
+        return true;
+    },
+    get: function (target, key) {
+        return key in target ? target[key] : 0;
+    }
+});
+document.getElementById('timeDisplay').innerText = Math.max(timeProxy.value - (delayCounter * delay), 0);
+
+let actualTime = { value: 0 };
+let actualTimeProxy = new Proxy(actualTime, {
+    set: function (target, key, value) {
+        document.getElementById('actualTimeDisplay').innerText = value;
+        target[key] = value;
+        return true;
+    },
+    get: function (target, key) {
+        return key in target ? target[key] : 0;
+    }
+});
+document.getElementById('actualTimeDisplay').innerText = actualTimeProxy.value;
+
+// Radio buttons handling
 const typeRadioButtons = document.querySelectorAll('input[name="type"]');
 let selectedType = 't1';
 typeRadioButtons.forEach(radio => {
@@ -38,7 +70,7 @@ class Pixel {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.size, this.size);
         ctx.strokeStyle = "white";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 0.5;
         ctx.strokeRect(this.x, this.y, this.size, this.size);
     }
 
@@ -82,23 +114,31 @@ class Pixel {
             pixel.type = 'wall';
         } else if (pixel.color !== 'red' && pixel.color !== 'green') {
             pixel.color = 'black';
-            pixel.type = 'wall';
+            pixel.type = 'empty';
         }
         pixel.draw();
     }
 }
 
-const numRowsCols = 20;
-const pixelSize = Math.min(canvas.width / numRowsCols, canvas.height / numRowsCols);
+function drawGrid() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-for (let row = 0; row < numRowsCols; row++) {
-    Pixel.grid[row] = [];
-    for (let col = 0; col < numRowsCols; col++) {
-        Pixel.grid[row][col] = new Pixel(row, col, col * pixelSize, row * pixelSize, 'black', pixelSize);
+    pixelSize = Math.min(canvas.width / numRowsCols, canvas.height / numRowsCols);
+
+    for (let row = 0; row < numRowsCols; row++) {
+        let redraw = false;
+        if (!(Pixel.start || Pixel.end)) {
+            redraw = true;
+            Pixel.grid[row] = [];
+        }
+        for (let col = 0; col < numRowsCols; col++) {
+            if (redraw) Pixel.grid[row][col] = new Pixel(row, col, col * pixelSize, row * pixelSize, 'black', pixelSize);
+            Pixel.grid[row][col].draw();
+        }
     }
 }
 
-Pixel.grid.flat().forEach(pixel => pixel.draw());
+drawGrid();
 
 let isDrawing = false;
 
@@ -128,37 +168,37 @@ canvas.addEventListener('mouseleave', function() {
     isDrawing = false;
 });
 
-document.getElementById('bfsBtn').addEventListener('click', () => {
+document.getElementById('bfsBtn').addEventListener('click', async () => {
     if (isSearching) {
         isSearching = false;
     }
     if (!Pixel.start || !Pixel.end) {
-        alert("Please select start and end points.");
+        showNotification("Please select start and end points.");
         return;
     }
-    search('bfs');
+    await search('bfs');
 });
 
-document.getElementById('dfsBtn').addEventListener('click', () => {
+document.getElementById('dfsBtn').addEventListener('click', async () => {
     if (isSearching) {
         isSearching = false;
     }
     if (!Pixel.start || !Pixel.end) {
-        alert("Please select start and end points.");
+        showNotification("Please select start and end points.");
         return;
     }
-    search('dfs');
+    await search('dfs');
 });
 
-document.getElementById('astarBtn').addEventListener('click', () => {
+document.getElementById('astarBtn').addEventListener('click', async () => {
     if (isSearching) {
         isSearching = false;
     }
     if (!Pixel.start || !Pixel.end) {
-        alert("Please select start and end points.");
+        showNotification("Please select start and end points.");
         return;
     }
-    search('astar');
+    await search('astar');
 });
 
 document.getElementById('resetBtn').addEventListener('click', () => {
@@ -166,6 +206,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         isSearching = false;
     }
     resetCanvas();
+    drawGrid();
 });
 
 document.getElementById('resetAlgoBtn').addEventListener('click', () => {
@@ -185,21 +226,24 @@ function resetCanvas() {
     });
     Pixel.start = null;
     Pixel.end = null;
+    timeProxy.value = 0;
 }
 
 function resetAlgo() {
     Pixel.grid.flat().forEach(pixel => {
-        if (pixel.type !== 'start' && pixel.type !== 'end' && pixel.type !== 'wall' && pixel.type !== 'empty') {
+        if (pixel.type !== 'start' && pixel.type !== 'end' && pixel.type !== 'wall') {
             pixel.color = 'black';
             pixel.type = 'empty';
             pixel.draw();
         }
     });
+    drawGrid();
+    timeProxy.value = 0;
 }
 
-function search(algorithm) {
+async function search(algorithm) {
     if (!Pixel.start || !Pixel.end) {
-        alert("Please select start and end points.");
+        showNotification("Please select start and end points.");
         return;
     }
 
@@ -207,14 +251,18 @@ function search(algorithm) {
     const endPixel = Pixel.end;
 
     isSearching = true;
+    const before = Date.now();
 
     if (algorithm === 'bfs') {
-        bfs(startPixel, endPixel);
+        await bfs(startPixel, endPixel);
     } else if (algorithm === 'dfs') {
-        dfs(startPixel, endPixel);
+        await dfs(startPixel, endPixel);
     } else if (algorithm === 'astar') {
-        astar(startPixel, endPixel);
+        await astar(startPixel, endPixel);
     }
+    const after = Date.now();
+    timeProxy.value = (after - before);
+    actualTimeProxy.value = (after - before);
 }
 
 async function bfs(start, end) {
@@ -227,7 +275,7 @@ async function bfs(start, end) {
         const current = queue.shift();
         if (current === end) {
             await tracePath(parent, start, end);
-            alert('Path found!');
+            showNotification('Path found!', true);
             return;
         }
 
@@ -244,7 +292,7 @@ async function bfs(start, end) {
             }
         }
     }
-    if (isSearching) alert('No path found.');
+    if (isSearching) showNotification('No path found.');
 }
 
 async function dfs(start, end) {
@@ -257,7 +305,7 @@ async function dfs(start, end) {
 
         if (current === end) {
             await tracePath(parent, start, end);
-            alert('Path found!');
+            showNotification('Path found!', true);
             return;
         }
 
@@ -276,7 +324,7 @@ async function dfs(start, end) {
             }
         }
     }
-    if (isSearching) alert('No path found.');
+    if (isSearching) showNotification('No path found.');
 }
 
 async function astar(start, end) {
@@ -294,7 +342,7 @@ async function astar(start, end) {
         const { element: current } = openSet.dequeue();
         if (current === end) {
             await tracePath(cameFrom, start, end);
-            alert('Path found!');
+            showNotification('Path found!', true);
             return;
         }
 
@@ -323,7 +371,7 @@ async function astar(start, end) {
             }
         }
     }
-    if (isSearching) alert('No path found.');
+    if (isSearching) showNotification('No path found.');
 }
 
 function getNeighbors(pixel) {
@@ -372,12 +420,13 @@ async function tracePath(parent, start, end) {
             node.color = 'yellow';
             node.type = 'filled';
             node.draw();
-            await sleep(delay);
+            // await sleep(delay);
         }
     }
 }
 
 function sleep(ms) {
+    delayCounter += 1;
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -412,3 +461,24 @@ class PriorityQueue {
         }
     }
 }
+
+function showNotification(message, isSuccess = false) {
+    const notification = document.getElementById('notification');
+    notification.innerText = message;
+    notification.className = isSuccess ? 'success' : 'failure';
+    notification.classList.add('show');
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
+}
+
+document.getElementById('numCells').addEventListener('input', (event) => {
+    numRowsCols = Math.min(Math.max(parseInt(event.target.value, 10), 0), 60);
+    resetCanvas();
+    drawGrid();
+});
+
+document.getElementById('delaySlider').addEventListener('input', (event) => {
+    delay = parseInt(event.target.value, 10);
+    document.get('delayValue').innerText = delay;
+});

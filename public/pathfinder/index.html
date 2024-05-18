@@ -1,103 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <title>Pathfinder</title>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            color: white;
-            font-family: 'Noto Sans', sans-serif;
-        }
-        body {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-evenly;
-            align-items: center;
-            background: #000;
-        }
-        .radioBtns, .buttonContainer {
-            width: 50%;
-            display: flex;
-            justify-content: space-evenly;
-            align-items: center;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #1a202c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #2d3748;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        color: white;
+        font-family: "Noto Sans", sans-serif;
+        transition-timing-function: ease-in-out;
+        transition-duration: 200ms;
+      }
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: center;
+        background: #000;
+      }
+      .radioBtns,
+      .buttonContainer {
+        width: 50%;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #1a202c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #2d3748;
+      }
+      #notification {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-20px); /* Start position */
+        padding: 10px 20px;
+        border-radius: 5px;
+        color: white;
+        font-size: 1em;
+        z-index: 1000;
+        opacity: 0; /* Start invisible */
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      #notification.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0); /* End position */
+      }
+      #notification.success {
+        background-color: #6bff6b;
+      }
+      #notification.failure {
+        background-color: #ff5050;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div id="notification"></div>
+
     <canvas id="canvas"></canvas>
 
-    <div class="menu flex flex-col gap-2 select-none">
-        <div class="flex flex-col gap-2 p-2 border border-gray-600 rounded-2xl">
-            <p class="text-sm text-neutral-400">Objects</p>
-            <div class="relative flex w-full flex-col rounded-xl bg-white shadow-md">
-                <nav class="flex min-w-[240px] flex-row gap-1 p-2 text-base text-gray-700">
-                    <div class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200">
-                        <label for="t1" class="flex cursor-pointer items-center w-full">
-                            <input type="radio" name="type" id="t1" class="hidden peer" checked />
-                            <div class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700">
-                                <div class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"></div>
-                            </div>
-                            <span class="text-black">Start</span>
-                        </label>
-                    </div>
-                    <div class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200">
-                        <label for="t2" class="flex cursor-pointer items-center w-full">
-                            <input type="radio" name="type" id="t2" class="hidden peer" />
-                            <div class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700">
-                                <div class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"></div>
-                            </div>
-                            <span class="text-black">End</span>
-                        </label>
-                    </div>
-                    <div class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200">
-                        <label for="t3" class="flex cursor-pointer items-center w-full">
-                            <input type="radio" name="type" id="t3" class="hidden peer" />
-                            <div class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700">
-                                <div class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"></div>
-                            </div>
-                            <span class="text-black">Wall</span>
-                        </label>
-                    </div>
-                </nav>
-            </div>
-        
-            <p class="text-sm text-neutral-400">Algorithm</p>
-            <div class="buttonContainer relativ flex w-full flex-row justify-between rounded-xl bg-white shadow-md p-2 gap-2">
-                <button id="bfsBtn" class="w-full px-4 py-2 text-black hover:bg-gray-200 ">BFS</button>
-                <button id="dfsBtn" class="w-full px-4 py-2 text-black hover:bg-gray-200">DFS</button>
-                <button id="astarBtn" class="w-full px-4 py-2 text-black hover:bg-gray-200">A*</button>
-            </div>
-            <p class="text-sm text-red-500">Danger Zone</p>
-            <div class="buttonContainer relativ flex w-full flex-row justify-between rounded-xl bg-white shadow-md p-2 gap-2">
-                <button id="resetAlgoBtn" class="w-full px-4 py-2 text-black hover:bg-yellow-300 ">Reset Algo</button>
-                <button id="resetBtn" class="w-full px-4 py-2 text-black hover:bg-red-500 ">Full Reset</button>
-            </div>
+    <div class="menu flex flex-row gap-2 select-none">
+      <div class="flex flex-col gap-2 h-max">
+        <div
+          class="info h-min flex flex-col gap-2 p-4 border border-gray-600 rounded-2xl"
+        >
+          <div>
+            <p class="text-xs text-neutral-400">Actual Time (ms):</p>
+            <h1 id="timeDisplay" class="text-right"></h1>
+          </div>
+          <div>
+            <p class="text-xs text-neutral-400">Time with delay (ms)</p>
+            <h1 id="actualTimeDisplay" class="text-right"></h1>
+          </div>
         </div>
+
+        <div
+          class="flex flex-col h-max gap-2 p-4 border border-gray-600 rounded-2xl max-w-80"
+        >
+          <p class="text-xs text-neutral-400 text-left">Information</p>
+          <p class="text-sm text-neutral-200 text-justify">
+            The time measurement is the actual amount of milliseconds the
+            algorithm would need. For a better visualization a delay of <span id="delayValue">20</span>ms is
+            added to every interaction.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-row gap-2 p-4 border border-gray-600 rounded-2xl">
+        <div class="flex flex-col justify-between">
+          <p class="text-sm text-neutral-400">Objects</p>
+          <div
+            class="relative flex w-full flex-col rounded-xl bg-white shadow-md"
+          >
+            <nav
+              class="flex min-w-[240px] flex-row gap-1 p-2 text-base text-gray-700"
+            >
+              <div
+                class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200"
+              >
+                <label for="t1" class="flex cursor-pointer items-center w-full">
+                  <input
+                    type="radio"
+                    name="type"
+                    id="t1"
+                    class="hidden peer"
+                    checked
+                  />
+                  <div
+                    class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700"
+                  >
+                    <div
+                      class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"
+                    ></div>
+                  </div>
+                  <span class="text-black">Start</span>
+                </label>
+              </div>
+              <div
+                class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200"
+              >
+                <label for="t2" class="flex cursor-pointer items-center w-full">
+                  <input type="radio" name="type" id="t2" class="hidden peer" />
+                  <div
+                    class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700"
+                  >
+                    <div
+                      class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"
+                    ></div>
+                  </div>
+                  <span class="text-black">End</span>
+                </label>
+              </div>
+              <div
+                class="flex items-center w-full p-2 rounded-lg cursor-pointer hover:bg-gray-200"
+              >
+                <label for="t3" class="flex cursor-pointer items-center w-full">
+                  <input type="radio" name="type" id="t3" class="hidden peer" />
+                  <div
+                    class="mr-3 flex items-center justify-center w-5 h-5 border rounded-full border-gray-300 peer-checked:bg-zinc-700"
+                  >
+                    <div
+                      class="w-2.5 h-2.5 bg-white rounded-full hidden peer-checked:block"
+                    ></div>
+                  </div>
+                  <span class="text-black">Wall</span>
+                </label>
+              </div>
+            </nav>
+          </div>
+
+          <!-- Slider for delay -->
+        <p for="delaySlider" class="text-neutral-400 mb-1">Set Delay (ms):</p>
+        <div class="flex flex-row w-full p-2 gap-2 rounded-xl bg-white shadow-md">
+          <span id="delayValue" class="text-black">0</span>
+          <input type="range" id="delaySlider" min="0" max="80" value="20" class="w-full">
+        </div>
+
+          <p class="text-sm text-neutral-400">Algorithm</p>
+          <div
+            class="buttonContainer relativ flex w-full flex-row justify-between rounded-xl bg-white shadow-md p-2 gap-2"
+          >
+            <button
+              id="bfsBtn"
+              class="w-full px-4 py-2 text-black hover:bg-gray-200"
+            >
+              BFS
+            </button>
+            <button
+              id="dfsBtn"
+              class="w-full px-4 py-2 text-black hover:bg-gray-200"
+            >
+              DFS
+            </button>
+            <button
+              id="astarBtn"
+              class="w-full px-4 py-2 text-black hover:bg-gray-200"
+            >
+              A*
+            </button>
+          </div>
+        </div>
+        <div class="flex flex-col justify-between gap-2">
+          <p class="text-sm text-neutral-400">Grid</p>
+          <div class="flex flex-col w-full p-2 rounded-xl bg-white shadow-md">
+            <label for="numCells" class="text-gray-700 mb-1"
+              >Number of cells per row:</label
+            >
+            <input
+              type="number"
+              id="numCells"
+              value="17"
+              min="2"
+              max="60"
+              class="w-full p-2 rounded-lg border border-gray-300 text-black"
+            />
+          </div>
+          <p class="text-sm text-red-500">Danger Zone</p>
+          <div
+            class="buttonContainer relativ flex w-full flex-row justify-between rounded-xl bg-white shadow-md p-2 gap-2"
+          >
+            <button
+              id="resetAlgoBtn"
+              class="w-full px-4 py-2 text-black hover:bg-yellow-300"
+            >
+              Reset Algo
+            </button>
+            <button
+              id="resetBtn"
+              class="w-full px-4 py-2 text-black hover:bg-red-500"
+            >
+              Full Reset
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="./script.js"></script>
-</body>
+  </body>
 </html>

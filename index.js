@@ -18,6 +18,10 @@ app.get('/recursive-tree', (req, res) => {
 
 app.get('/pathfinder', (req, res) => {
     res.sendFile('/pathfinder');
+});
+
+app.get('/laserstream', (req, res) => {
+    res.sendFile('/laserstream');
 })
 
 app.listen(4001, () => {
