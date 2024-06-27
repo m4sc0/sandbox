@@ -5,7 +5,7 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
-    res.redirect('http://45.77.143.109/sandbox');
+    res.redirect('http://philiploebl.com/sandbox');
 });
 
 app.get('/sorting-algo', (req, res) => {
